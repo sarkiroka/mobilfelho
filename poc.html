@@ -2,48 +2,72 @@
 <html>
 <head>
 	<title>Szorzás szétszedése és párhuzamosítása - proof of concept</title>
-	<meta charset="utf-8" />
+	<meta charset="utf-8"/>
 	<script>/*<![CDATA[*/
-(function(){
-	'use strict';
-	
-	var a = 9999999;
-	var b = 1;
-	
-	var sumAB = a + b;
-	
-	// --------------
-	
-	var charsA = a.toString();
-	var charsB = b.toString();
-	
-	var charNum = Math.max(charsA.length, charsB.length);
-	var pad = '';
-	
-	for(var i = 0; i < charNum; i++){
-		pad += '0';
-	}
-	
-	charsA = (pad + charsA).slice(-charNum).split('');
-	charsB = (pad + charsB).slice(-charNum).split('');
-	
-	var sums = [];
-	
-	for(var i = 0; i < charNum; i++){
-		var sum = (parseInt(charsA[i]) + parseInt(charsB[i])) + '';
-		sums.push({
-			sum : parseInt(sum.length === 1 ? sum[0] : sum[1]),
-			carry : sum.length > 1 ? parseInt(sum[0]) : 0
-		});
-	}
-	
-	// --------------
-	
-	console.log(charsA);
-	console.log(charsB);
-	console.log(JSON.stringify(sums));
-	console.log(sumAB);
-})();
+	(function () {
+		'use strict';
+
+		var a = 9999999;
+		var b = 1;
+
+		var sumAB = a + b;
+
+		// --------------
+
+		var charsA = a.toString();
+		var charsB = b.toString();
+
+		var charNum = Math.max(charsA.length, charsB.length);
+		var pad = '';
+
+		for (var i = 0; i < charNum; i++) {
+			pad += '0';
+		}
+
+		charsA = (pad + charsA).slice(-charNum).split('');
+		charsB = (pad + charsB).slice(-charNum).split('');
+
+		var sums = new Array(charNum);
+		var ends = charNum;
+
+		var startTime = Date.now();
+		var slowest = 0;
+		for (var i = 0; i < charNum; i++) {
+			client(i, charsA[i], charsB[i], ready);//ezzel még mindig az a baj hogy szinkron
+		}
+
+		function client(i, a, b, ready) {//átadjuk a paramétereket a klienseknek
+			var speed = Math.round(10000 * Math.random());
+			slowest = Math.max(slowest, speed);
+			console.log(i, ':', speed);
+			setTimeout(function () {//a kliensek végrehajtják a parancsot
+				var sum = (parseInt(a) + parseInt(b)) + '';
+				var result = {
+					sum: parseInt(sum.length == 1 ? sum[0] : sum[1]),
+					carry: sum.length > 1 ? parseInt(sum[0]) : 0
+				};
+				ready(i, result);//a kliens jelzi hogy kész
+			}, speed);//a kliensek különböző sebességgel működnek
+		}
+
+		function ready(i, result) {
+			console.log(i, 'calculated');
+			sums[i] = result;
+			ends--;
+			if (!ends) {
+				showResult();
+			}
+		}
+
+		// --------------
+		function showResult() {
+			console.log(charsA);
+			console.log(charsB);
+			console.log(JSON.stringify(sums));
+			console.log(sumAB);
+			console.log('elapsed', Date.now() - startTime, 'slowest', slowest);
+		}
+	})();
 	/*]]>*/</script>
 </head>
 <body>
