@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Szorzás szétszedése és párhuzamosítása - proof of concept</title>
+	<meta charset="utf-8" />
+	<script>/*<![CDATA[*/
+(function(){
+	'use strict';
+	
+	var a = 9999999;
+	var b = 1;
+	
+	var sumAB = a + b;
+	
+	// --------------
+	
+	var charsA = a.toString();
+	var charsB = b.toString();
+	
+	var charNum = Math.max(charsA.length, charsB.length);
+	var pad = '';
+	
+	for(var i = 0; i < charNum; i++){
+		pad += '0';
+	}
+	
+	charsA = (pad + charsA).slice(-charNum).split('');
+	charsB = (pad + charsB).slice(-charNum).split('');
+	
+	var sums = [];
+	
+	for(var i = 0; i < charNum; i++){
+		var sum = (parseInt(charsA[i]) + parseInt(charsB[i])) + '';
+		sums.push({
+			sum : parseInt(sum.length === 1 ? sum[0] : sum[1]),
+			carry : sum.length > 1 ? parseInt(sum[0]) : 0
+		});
+	}
+	
+	// --------------
+	
+	console.log(charsA);
+	console.log(charsB);
+	console.log(JSON.stringify(sums));
+	console.log(sumAB);
+})();
+	/*]]>*/</script>
+</head>
+<body>
+</body>
+</html>
